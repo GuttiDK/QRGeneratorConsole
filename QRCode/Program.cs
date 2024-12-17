@@ -1,56 +1,34 @@
 ﻿using System;
-using System.Drawing;
-using QRCoder;
+using QRGeneratorProject.QRCoding;
 
-namespace QRCode
+namespace QRGeneratorProject
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Indtast tekst eller link til QR-kode:");
+            Console.WriteLine("Enter text or link for the QR code:");
             string inputData = Console.ReadLine();
 
-            Console.WriteLine("Indtast tekst til visning under QR-koden:");
+            Console.WriteLine("Enter text to display below the QR code:");
             string bottomText = Console.ReadLine();
+
+            // Define the output directory
+            string outputDirectory = @"C:\Users\ChristianHøttges\OneDrive - SpeedAdmin ApS\Skrivebord\QRGeneratorProject\QRCode\Assets\Output";
+
+            // Instantiate the QRCodeService
+            QRCodeService qrCodeService = new QRCodeService();
 
             try
             {
-                // Opretter en QR-kode generator
-                QRCodeGenerator qrGenerator = new QRCodeGenerator();
-                QRCodeData qrCodeData = qrGenerator.CreateQrCode(inputData, QRCodeGenerator.ECCLevel.Q);
+                // Generate the QR code and save it
+                string savedFilePath = qrCodeService.GenerateQRCode(inputData, bottomText, outputDirectory);
 
-                QRCode qrCode = new QRCode(qrCodeData);
-
-                // Genererer billede af QR-koden
-                Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
-                // Opretter et grafikobjekt til at tilføje tekst
-                using (Graphics graphics = Graphics.FromImage(qrCodeImage))
-                {
-                    // Definerer tekst og font
-                    Font font = new Font("Arial", 12);
-                    SizeF textSize = graphics.MeasureString(bottomText, font);
-
-                    // Beregner positionen til teksten, så den er centreret under QR-koden
-                    PointF position = new PointF(
-                        (qrCodeImage.Width - textSize.Width) / 2,
-                        qrCodeImage.Height - textSize.Height - 10
-                    );
-
-                    // Tegner teksten på billedet
-                    graphics.DrawString(bottomText, font, Brushes.Black, position);
-                }
-
-                // Gem QR-koden som PNG
-                string outputPath = @"C:\Users\ChristianHøttges\source\repos\QRGeneratorProject\QRCode\Assets\Output\QRCode.png";
-                qrCodeImage.Save(outputPath, System.Drawing.Imaging.ImageFormat.Png);
-
-                Console.WriteLine($"QR-koden er gemt som: {outputPath}");
+                Console.WriteLine($"QR code has been saved as: {savedFilePath}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"En fejl opstod: {ex.Message}");
+                Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
     }
