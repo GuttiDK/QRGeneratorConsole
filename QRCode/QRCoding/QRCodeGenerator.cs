@@ -2,18 +2,12 @@
 using System.Drawing;
 using QRCoder;
 
-namespace QRCode
+namespace QRCode.QRCode
 {
-    class Program
+    public class QRCodeGeneratorHelper
     {
-        static void Main(string[] args)
+        public static void GenerateQRCode(string inputData, string bottomText, string outputPath)
         {
-            Console.WriteLine("Indtast tekst eller link til QR-kode:");
-            string inputData = Console.ReadLine();
-
-            Console.WriteLine("Indtast tekst til visning under QR-koden:");
-            string bottomText = Console.ReadLine();
-
             try
             {
                 // Opretter en QR-kode generator
@@ -43,9 +37,7 @@ namespace QRCode
                 }
 
                 // Gem QR-koden som PNG
-                string outputPath = @"C:\Users\ChristianHøttges\source\repos\QRGeneratorProject\QRCode\Assets\Output\QRCode.png";
                 qrCodeImage.Save(outputPath, System.Drawing.Imaging.ImageFormat.Png);
-
                 Console.WriteLine($"QR-koden er gemt som: {outputPath}");
             }
             catch (Exception ex)
