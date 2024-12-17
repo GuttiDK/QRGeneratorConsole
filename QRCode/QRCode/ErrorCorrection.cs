@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace QRCode.QRCode
+﻿namespace QRGeneratorProject.QRCode
 {
-    internal class QRCodeGenerator
+    public class ErrorCorrection
     {
+        public string Generate(string data)
+        {
+            int numECBytes = 20; // Placeholder, for version 1 QR-kode
+            return new string('1', numECBytes * 8); // Dummy Reed-Solomon data
+        }
     }
 }
