@@ -1,11 +1,12 @@
 ﻿using System;
+using QRGeneratorProject.DownloadsPath;
 using QRGeneratorProject.QRCoding;
 
 namespace QRGeneratorProject
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("Enter text or link for the QR code:");
             string inputData = Console.ReadLine();
@@ -14,7 +15,16 @@ namespace QRGeneratorProject
             string bottomText = Console.ReadLine();
 
             // Define the output directory
-            string outputDirectory = @"C:\Users\ChristianHøttges\OneDrive - SpeedAdmin ApS\Skrivebord\QRGeneratorProject\QRCode\Assets\Output";
+            string outputDirectory = KnownFolders.GetPath(KnownFolder.Downloads);
+            if (string.IsNullOrEmpty(outputDirectory))
+            {
+                Console.WriteLine("Downloads folder not found.");
+                outputDirectory = @"C:\Users\ChristianHøttges\OneDrive - SpeedAdmin ApS\Skrivebord\QRGeneratorProject\QRCode\Assets\Output";
+            }
+            else
+            {
+                Console.WriteLine($"Downloads folder found: {outputDirectory}");
+            }
 
             // Instantiate the QRCodeService
             QRCodeService qrCodeService = new QRCodeService();
