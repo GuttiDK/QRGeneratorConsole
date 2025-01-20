@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace QRGeneratorProject.DownloadsPath
+namespace QRGeneratorProject.Helpers
 {
     public enum KnownFolder
     {
