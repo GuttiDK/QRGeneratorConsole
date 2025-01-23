@@ -1,20 +1,18 @@
-﻿using System;
-using QRGeneratorProject.Helpers;
-using System.Collections.Generic;
+﻿using QRGeneratorProject.Helpers;
 using QRGeneratorProject.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace QRGeneratorProject.Services
 {
     public class MenuService : IMenuService
     {
-        private readonly IQRCodeService _qrCodeService;
-        private readonly ILayoutService _layoutService;
+        private readonly IQRCodeGenerationService _qrCodeGenerationService;
         private readonly ITestModeService _testModeService;
 
-        public MenuService(IQRCodeService qrCodeService, ILayoutService layoutService, ITestModeService testModeService)
+        public MenuService(IQRCodeGenerationService qrCodeGenerationService, ITestModeService testModeService)
         {
-            _qrCodeService = qrCodeService;
-            _layoutService = layoutService;
+            _qrCodeGenerationService = qrCodeGenerationService;
             _testModeService = testModeService;
         }
 
@@ -28,10 +26,12 @@ namespace QRGeneratorProject.Services
                 Console.WriteLine("QR Code Generator Menu:");
                 Console.WriteLine("1. Generate a single QR code");
                 Console.WriteLine("2. Generate multiple QR codes");
-                Console.WriteLine("3. Generate a single QR code for a room (coming soon)");
-                Console.WriteLine("4. Generate multiple QR codes for rooms (coming soon)");
-                Console.WriteLine("5. Toggle Debug Mode");
-                Console.WriteLine("6. Exit");
+                if (_testModeService.IsTestModeActive()) // Show this option only in Test Mode
+                {
+                    Console.WriteLine("3. Generate a single test QR code (Test Mode only)");
+                    Console.WriteLine("4. Generate multiple test QR codes (Test Mode only)");
+                }
+                Console.WriteLine("5. Exit");
                 Console.Write("Choose an option: ");
                 string choice = Console.ReadLine();
 
@@ -43,12 +43,32 @@ namespace QRGeneratorProject.Services
                     case "2":
                         GenerateMultipleQRCodes();
                         break;
-                    case "5":
-                        _testModeService.ToggleTestMode();
+                    case "3":
+                        if (_testModeService.IsTestModeActive())
+                        {
+                            GenerateTestQRCode();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Test mode is not enabled. Option not available.");
+                        }
                         break;
-                    case "6":
+                    case "4":
+                        if (_testModeService.IsTestModeActive())
+                        {
+                            GenerateMultipleTestQRCodes();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Test mode is not enabled. Option not available.");
+                        }
+                        break;
+                    case "5":
                         exitProgram = true;
                         Console.WriteLine("Exiting program. Goodbye!");
+                        break;
+                    case "6":
+                        _testModeService.ToggleTestMode();
                         break;
                     default:
                         Console.WriteLine("Invalid option. Please try again.");
@@ -72,17 +92,7 @@ namespace QRGeneratorProject.Services
             Console.WriteLine("Enter text to display below the QR code:");
             string bottomText = Console.ReadLine();
 
-            string outputDirectory = DirectoryHelper.GetOutputDirectory();
-
-            try
-            {
-                string savedFilePath = _qrCodeService.GenerateQRCode(inputData, bottomText, outputDirectory);
-                Console.WriteLine($"QR code has been saved as: {savedFilePath}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-            }
+            _qrCodeGenerationService.GenerateSingleQRCode(inputData, bottomText);
         }
 
         private void GenerateMultipleQRCodes()
@@ -95,27 +105,27 @@ namespace QRGeneratorProject.Services
             Console.WriteLine("Enter text to display below each QR code (leave blank if no text):");
             string bottomText = Console.ReadLine();
 
-            string outputDirectory = DirectoryHelper.GetOutputDirectory();
-            List<string> filePaths = new List<string>();
+            _qrCodeGenerationService.GenerateMultipleQRCodes(input, bottomText);
+        }
 
-            try
+        private void GenerateTestQRCode()
+        {
+            _qrCodeGenerationService.GenerateTestQRCode();
+        }
+
+        private void GenerateMultipleTestQRCodes()
+        {
+            Console.Clear();
+            Console.WriteLine("Enter a number between 1 and 9999 for the test QR codes:");
+
+            string input = Console.ReadLine();
+            if (int.TryParse(input, out int number) && number >= 1 && number <= 9999)
             {
-                foreach (string data in dataItems)
-                {
-                    string trimmedData = data.Trim();
-                    if (!string.IsNullOrEmpty(trimmedData))
-                    {
-                        string savedFilePath = _qrCodeService.GenerateQRCode(trimmedData, bottomText, outputDirectory);
-                        filePaths.Add(savedFilePath);
-                    }
-                }
-
-                _layoutService.GenerateA4Layout(filePaths, outputDirectory);
-                Console.WriteLine("All QR codes saved and compiled into an A4 layout.");
+                _qrCodeGenerationService.GenerateMultipleTestQRCodes(number);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                Console.WriteLine("Invalid number. Please enter a value between 1 and 9999.");
             }
         }
     }

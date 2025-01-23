@@ -10,13 +10,19 @@ namespace QRGeneratorProject
         {
             // Setup Dependency Injection
             var serviceProvider = new ServiceCollection()
-                .AddSingleton<IQRCodeService, QRCodeService>()
-                .AddSingleton<ILayoutService, LayoutService>()
+                .AddSingleton<IQRCodeService, QRCodeService>() 
+                .AddSingleton<ILayoutService, LayoutService>() 
+                .AddSingleton<ITestModeService, TestModeService>() 
+                .AddSingleton<ITestDataGenerator, TestDataGenerator>() 
                 .AddSingleton<IMenuService, MenuService>()
-                .AddSingleton<ITestModeService, TestModeService>()
+                .AddSingleton<IQRCodeGenerationService, QRCodeGenerationService>()
                 .BuildServiceProvider();
 
+            // Resolve services
             var menuService = serviceProvider.GetRequiredService<IMenuService>();
+            var testModeService = serviceProvider.GetRequiredService<ITestModeService>();
+
+            // Start the menu
             menuService.StartMenu();
         }
     }

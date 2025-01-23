@@ -1,4 +1,5 @@
 ﻿using QRGeneratorProject.Interfaces;
+using QRGeneratorProject.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,13 +9,50 @@ namespace QRGeneratorProject.Services
 {
     public class LayoutService : ILayoutService
     {
-        public void GenerateA4Layout(List<string> qrCodePaths, string outputDirectory)
+        public void GenerateA4Layout(List<FinalImage> qrCodePaths)
         {
             // Hvis ingen QR-kode stier er givet, kastes en undtagelse.
             if (qrCodePaths == null || qrCodePaths.Count == 0)
                 throw new ArgumentException("No QR code paths provided for layout generation.");
 
             // Definer layoutens egenskaber og A4-sidens dimensioner.
+            const int qrCodeSize = 200;
+            const int margin = 20;
+            const int cols = 4;
+            const int rows = 6;
+            int a4Width = cols * (qrCodeSize + margin) - margin;
+            int a4Height = rows * (qrCodeSize + margin) - margin;
+            string outputDirectory = "";
+            // Opret en ny mappe til layouts, hvis den ikke eksisterer
+            string layoutsDirectory = Path.Combine(outputDirectory, "Layouts");
+            Directory.CreateDirectory(layoutsDirectory);
+
+            int pageNumber = 1;
+            List<FinalImage> currentPageImages = new List<FinalImage>();
+
+            foreach (var filePath in qrCodePaths)
+            {
+                currentPageImages.Add(filePath);
+
+                // Når vi har fyldt 24 QR-koder (6x4 = 24), opretter vi en ny side
+                if (currentPageImages.Count == 24)
+                {
+                    SaveLayoutPage(currentPageImages, layoutsDirectory, pageNumber);
+                    currentPageImages.Clear();  // Tøm listen til næste side
+                    pageNumber++;
+                }
+            }
+
+            // Hvis der er resterende QR-koder på den sidste side
+            if (currentPageImages.Count > 0)
+            {
+                SaveLayoutPage(currentPageImages, layoutsDirectory, pageNumber);
+            }
+        }
+
+        private void SaveLayoutPage(List<FinalImage> qrCodePaths, string layoutsDirectory, int pageNumber)
+        {
+            // Definer layoutens egenskaber og A4-sidens dimensioner
             const int qrCodeSize = 200;
             const int margin = 20;
             const int cols = 4;
@@ -33,13 +71,13 @@ namespace QRGeneratorProject.Services
                     int x = 0, y = 0;
                     foreach (var filePath in qrCodePaths)
                     {
-                        if (!File.Exists(filePath))
+                        if (!File.Exists(filePath.OutputPath))
                         {
-                            Console.WriteLine($"QR code file not found: {filePath}");
+                            Console.WriteLine($"QR code file not found: {filePath.OutputPath}");
                             continue;
                         }
 
-                        using (Bitmap qrCode = new Bitmap(filePath))
+                        using (Bitmap qrCode = new Bitmap(filePath.Image))
                         {
                             g.DrawImage(qrCode, x, y, qrCodeSize, qrCodeSize);
                         }
@@ -61,10 +99,10 @@ namespace QRGeneratorProject.Services
                 }
 
                 // Gem A4-layoutet som en PNG-billede.
-                string outputFile = Path.Combine(outputDirectory, "QRCodes_A4Layout.png");
+                string outputFile = Path.Combine(layoutsDirectory, $"QRCodes_A4Layout_Page{pageNumber}.png");
                 a4Bitmap.Save(outputFile, System.Drawing.Imaging.ImageFormat.Png);
 
-                Console.WriteLine($"A4 layout saved as: {outputFile}");
+                Console.WriteLine($"A4 layout for page {pageNumber} saved as: {outputFile}");
             }
         }
     }

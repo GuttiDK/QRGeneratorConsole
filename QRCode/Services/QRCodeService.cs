@@ -3,12 +3,13 @@ using System.Drawing;
 using System.IO;
 using QRCoder;
 using QRGeneratorProject.Interfaces;
+using QRGeneratorProject.Models;
 
 namespace QRGeneratorProject.Services
 {
     public class QRCodeService : IQRCodeService
     {
-        public string GenerateQRCode(string inputData, string bottomText, string outputDirectory)
+        public FinalImage GenerateQRCode(string inputData, string bottomText, string outputDirectory)
         {
             try
             {
@@ -44,8 +45,16 @@ namespace QRGeneratorProject.Services
                 string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
                 string outputPath = Path.Combine(outputDirectory, $"QRCODE_{timestamp}.png");
 
+                var returnImage = new FinalImage
+                {
+                    Image = finalImage,
+                    OutputPath = outputPath,
+                    Timestamp = timestamp,
+                    Link = inputData
+                };
+
                 finalImage.Save(outputPath, System.Drawing.Imaging.ImageFormat.Png);
-                return outputPath;
+                return returnImage;
             }
             catch (Exception ex)
             {

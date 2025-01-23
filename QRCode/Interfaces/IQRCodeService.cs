@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QRGeneratorProject.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace QRGeneratorProject.Interfaces
 {
     public interface IQRCodeService
     {
-        string GenerateQRCode(string inputData, string bottomText, string outputDirectory);
+        FinalImage GenerateQRCode(string inputData, string bottomText, string outputDirectory);
     }
 }
