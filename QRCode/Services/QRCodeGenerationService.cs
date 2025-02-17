@@ -36,20 +36,20 @@ namespace QRGeneratorProject.Services
             }
         }
 
-        public void GenerateMultipleQRCodes(string input, string bottomText)
+        public void GenerateMultipleQRCodes(string[] input, string[] bottomText)
         {
             List<FinalImage> files = new List<FinalImage>();
-            string[] dataItemsArray = input.Split(',');
+            string[] dataItemsArray = input;
 
             string outputDirectory = DirectoryHelper.GetOutputDirectory();
             try
             {
-                foreach (var data in dataItemsArray)
+                for (int i = 0; i < dataItemsArray.Length; i++)
                 {
-                    string trimmedData = data.Trim();
+                    string trimmedData = dataItemsArray[i].Trim();
                     if (!string.IsNullOrEmpty(trimmedData))
                     {
-                        var file = _qrCodeService.GenerateQRCode(trimmedData, bottomText, outputDirectory);
+                        var file = _qrCodeService.GenerateQRCode(trimmedData, bottomText[i], outputDirectory);
                         files.Add(file);
                     }
                 }

@@ -101,11 +101,15 @@ namespace QRGeneratorProject.Services
             Console.WriteLine("Enter text or link for each QR code, separated by commas:");
             string input = Console.ReadLine();
             string[] dataItems = input.Split(',');
+            string[] bottomText = new string[dataItems.Length];
 
-            Console.WriteLine("Enter text to display below each QR code (leave blank if no text):");
-            string bottomText = Console.ReadLine();
+            for (int i = 0; i < dataItems.Length; i++)
+            {
+                Console.WriteLine("Enter text to display below each QR code (leave blank if no text):");
+                bottomText[i] = Console.ReadLine();
+            }
 
-            _qrCodeGenerationService.GenerateMultipleQRCodes(input, bottomText);
+            _qrCodeGenerationService.GenerateMultipleQRCodes(dataItems, bottomText);
         }
 
         private void GenerateTestQRCode()
